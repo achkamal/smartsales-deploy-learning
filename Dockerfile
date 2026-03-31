@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
     zip \
     unzip
 
@@ -14,7 +15,8 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Sekarang sudah ada zip di sini
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -26,7 +28,8 @@ WORKDIR /var/www
 COPY . /var/www
 
 # Install dependencies Laravel
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Tambahan --ignore-platform-reqs buat jaga-jaga kalau ada ekstensi lain yang kurang
+RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
